@@ -1,0 +1,4 @@
+# edge-tts 7.2.x and earlier receive HTTP 403 from the Microsoft speech
+# endpoint (retired Sec-MS-GEC token). 7.3.0 and newer speak without an API key.
+edge-tts==7.3.1
+mutagen==1.48.1

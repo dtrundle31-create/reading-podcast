@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+     xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Dan's Reading List</title>
+    <link>https://dtrundle31-create.github.io/reading-podcast/</link>
+    <description>Spoken summaries and readings of articles from Dan's reading list.</description>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 11 Nov 2026 12:00:00 GMT</lastBuildDate>
+    <generator>reading-podcast</generator>
+    <atom:link href="https://dtrundle31-create.github.io/reading-podcast/feed.xml" rel="self" type="application/rss+xml"/>
+    <itunes:author>Dan</itunes:author>
+    <itunes:summary>Spoken summaries and readings of articles from Dan's reading list.</itunes:summary>
+    <itunes:explicit>false</itunes:explicit>
+    <itunes:type>episodic</itunes:type>
+    <itunes:image href="https://dtrundle31-create.github.io/reading-podcast/cover.png"/>
+    <itunes:category text="Arts">
+      <itunes:category text="Books"/>
+    </itunes:category>
+    <image>
+      <url>https://dtrundle31-create.github.io/reading-podcast/cover.png</url>
+      <title>Dan's Reading List</title>
+      <link>https://dtrundle31-create.github.io/reading-podcast/</link>
+    </image>
+    <item>
+      <title>Welcome to Dan's Reading List</title>
+      <link>https://github.com/dtrundle31-create/reading-podcast</link>
+      <description><![CDATA[<p>Welcome to Dan's Reading List.</p>
+<p>This is a personal podcast of spoken summaries and readings from articles on the list. Each episode is generated from a plain text script, then added to this feed automatically.</p>
+<p>In Podcast Addict, open an episode to hear it read aloud. The show notes link back to the original article. New episodes appear whenever a script is added to the reading list.</p>
+<p>Thanks for listening.</p>
+<p>Source: <a href="https://github.com/dtrundle31-create/reading-podcast">https://github.com/dtrundle31-create/reading-podcast</a></p>
+<p>Author: Dan</p>]]></description>
+      <content:encoded><![CDATA[<p>Welcome to Dan's Reading List.</p>
+<p>This is a personal podcast of spoken summaries and readings from articles on the list. Each episode is generated from a plain text script, then added to this feed automatically.</p>
+<p>In Podcast Addict, open an episode to hear it read aloud. The show notes link back to the original article. New episodes appear whenever a script is added to the reading list.</p>
+<p>Thanks for listening.</p>
+<p>Source: <a href="https://github.com/dtrundle31-create/reading-podcast">https://github.com/dtrundle31-create/reading-podcast</a></p>
+<p>Author: Dan</p>]]></content:encoded>
+      <itunes:summary><![CDATA[Welcome to Dan's Reading List. This is a personal podcast of spoken summaries and readings from articles on the list. Each episode is generated from a plain text script, then added to this feed automatically. In Podcast Addict, open an episode to hear it read aloud. The show notes link back to the original article. New episodes appear whenever a script is added to the reading list. Thanks for listening.
+Source: https://github.com/dtrundle31-create/reading-podcast
+Author: Dan]]></itunes:summary>
+      <itunes:author>Dan</itunes:author>
+      <enclosure url="https://dtrundle31-create.github.io/reading-podcast/episodes/2026-11-11-welcome.mp3" length="171216" type="audio/mpeg"/>
+      <guid isPermaLink="true">https://dtrundle31-create.github.io/reading-podcast/episodes/2026-11-11-welcome.mp3</guid>
+      <pubDate>Wed, 11 Nov 2026 12:00:00 GMT</pubDate>
+      <itunes:duration>00:00:29</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+      <itunes:episodeType>full</itunes:episodeType>
+    </item>
+  </channel>
+</rss>
