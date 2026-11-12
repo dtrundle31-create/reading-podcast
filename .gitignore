@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.venv/
+.episodes-tmp/
+.*.tmp.mp3
+.*.concat.txt
