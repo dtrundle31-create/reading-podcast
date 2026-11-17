@@ -80,6 +80,7 @@ class Episode:
     published: datetime
     body: str
     audio_path: Path
+    voice: str
     duration: float = 0.0
     nbytes: int = 0
 
@@ -154,6 +155,7 @@ def load_episode(path: Path) -> Episode:
     published = day.replace(hour=12, tzinfo=timezone.utc)
     if not body:
         fail(f"{path.name}: narration is empty")
+    voice = meta.get("voice", "").strip() or VOICE
     return Episode(
         script_path=path,
         episode_id=path.stem,
@@ -163,6 +165,7 @@ def load_episode(path: Path) -> Episode:
         published=published,
         body=body,
         audio_path=EPISODES_DIR / f"{path.stem}.mp3",
+        voice=voice,
     )
 
 
@@ -300,13 +303,13 @@ def check_cover() -> None:
         fail(f"cover.png must be a square PNG between 1400 and 3000 pixels (got {width}x{height})")
 
 
-async def synthesize_chunk(text: str, dest: Path) -> None:
+async def synthesize_chunk(text: str, dest: Path, voice: str) -> None:
     last_error: Exception | None = None
     for attempt in range(1, 5):
         try:
             communicate = edge_tts.Communicate(
                 text,
-                VOICE,
+                voice,
                 connect_timeout=20,
                 receive_timeout=120,
             )
@@ -384,7 +387,7 @@ async def synthesize_episode(episode: Episode) -> None:
     label = "chunk" if len(chunks) == 1 else "chunks"
     print(
         f"synthesize {episode.audio_path.name} "
-        f"({len(chunks)} {label}, voice {VOICE})"
+        f"({len(chunks)} {label}, voice {episode.voice})"
     )
     with tempfile.TemporaryDirectory(prefix="episode-") as tmp:
         tmpdir = Path(tmp)
@@ -393,7 +396,7 @@ async def synthesize_episode(episode: Episode) -> None:
             part = tmpdir / f"chunk-{index:03d}.mp3"
             if len(chunks) > 1:
                 print(f"  chunk {index}/{len(chunks)} ({len(chunk)} characters)")
-            await synthesize_chunk(chunk, part)
+            await synthesize_chunk(chunk, part, episode.voice)
             parts.append(part)
         if len(parts) == 1:
             episode.audio_path.parent.mkdir(parents=True, exist_ok=True)

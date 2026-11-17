@@ -17,6 +17,7 @@ title: A spoken title for the episode
 source_url: https://example.com/the-article
 author: Original author or site
 date: 2026-11-12
+voice: en-US-AriaNeural
 ---
 
 Write the words that should be spoken.
@@ -31,8 +32,9 @@ The show notes will include the source link from source_url.
 | `source_url` | yes | Absolute `http` or `https` link to the article. Included in the episode description |
 | `author` | no | Original author or publication, if you know it |
 | `date` | yes | Publication date, `YYYY-MM-DD` |
+| `voice` | no | edge-tts voice name for this episode. Defaults to `en-US-AriaNeural` |
 
-`author` may be omitted. The other three fields are required. The text after the closing `---` is the script that will be read aloud.
+`author` and `voice` may be omitted. The other three fields are required. The text after the closing `---` is the script that will be read aloud.
 
 Commit the script to `main` (a merged pull request is enough). You do not generate audio yourself.
 
@@ -40,7 +42,7 @@ Commit the script to `main` (a merged pull request is enough). You do not genera
 
 The workflow [Build podcast](.github/workflows/build-podcast.yml) runs when a push to `main` changes `scripts/`, and when someone starts it by hand from the Actions tab (`workflow_dispatch`).
 
-For every script that does not already have a usable MP3, it synthesizes speech with [edge-tts](https://github.com/rany2/edge-tts) and the US English neural voice `en-US-AriaNeural`. That service needs no API key. Scripts longer than about 2,400 characters are split on sentence boundaries, spoken in chunks, and joined with ffmpeg into one MP3 under `episodes/`.
+For every script that does not already have a usable MP3, it synthesizes speech with [edge-tts](https://github.com/rany2/edge-tts). The voice is the US English neural voice `en-US-AriaNeural`, unless the script sets `voice` in its front matter. That service needs no API key. Scripts longer than about 2,400 characters are split on sentence boundaries, spoken in chunks, and joined with ffmpeg into one MP3 under `episodes/`.
 
 It then rewrites `feed.xml` (RSS 2.0 with iTunes tags) and `index.html`, and commits those files plus any new audio back to `main`. Existing episode files are left as they are. To re-record an episode, delete its MP3 and run the workflow again (push a script change, or use **Run workflow**). Removing a script drops that episode from the feed and deletes its MP3 on the next run.
 
