@@ -30,8 +30,10 @@ INDEX_PATH = ROOT / "index.html"
 COVER_PATH = ROOT / "cover.png"
 
 BASE_URL = "https://dtrundle31-create.github.io/reading-podcast"
-# Natural US English neural voice suited to articles (edge-tts, no API key).
-VOICE = "en-US-AriaNeural"
+# Defaults when a script does not set `voice`. An explicit front-matter voice
+# always wins. Earnings briefs use Andrew; articles and other scripts use Ava.
+ARTICLE_VOICE = "en-US-AvaMultilingualNeural"
+EARNINGS_VOICE = "en-US-AndrewMultilingualNeural"
 # Stay under the speech service's per-request byte limit and split on sentences.
 MAX_CHUNK_CHARS = 2400
 TITLE = "Dan's Reading List"
@@ -135,6 +137,21 @@ def require_http_url(path: Path, value: str) -> str:
     return value
 
 
+def is_earnings_brief(path: Path, title: str) -> bool:
+    """True when the filename contains ``-earnings`` or the title contains ``Earnings Brief``."""
+    return "-earnings" in path.name or "Earnings Brief" in title
+
+
+def select_voice(path: Path, title: str, requested: str) -> str:
+    """Voice for a new synthesis. Front matter wins; otherwise earnings vs article."""
+    explicit = requested.strip()
+    if explicit:
+        return explicit
+    if is_earnings_brief(path, title):
+        return EARNINGS_VOICE
+    return ARTICLE_VOICE
+
+
 def load_episode(path: Path) -> Episode:
     if not EPISODE_ID_RE.fullmatch(path.stem):
         fail(
@@ -155,7 +172,7 @@ def load_episode(path: Path) -> Episode:
     published = day.replace(hour=12, tzinfo=timezone.utc)
     if not body:
         fail(f"{path.name}: narration is empty")
-    voice = meta.get("voice", "").strip() or VOICE
+    voice = select_voice(path, title, meta.get("voice", ""))
     return Episode(
         script_path=path,
         episode_id=path.stem,
@@ -408,6 +425,11 @@ async def synthesize_episode(episode: Episode) -> None:
 
 
 async def ensure_audio(episodes: list[Episode]) -> None:
+    """Synthesize only scripts that do not already have a usable MP3.
+
+    A present, playable episode file is kept as-is, whatever voice the script
+    would use if it were recorded again. Delete that MP3 to re-record.
+    """
     EPISODES_DIR.mkdir(parents=True, exist_ok=True)
     # Oldest first so a failure leaves newer scripts still waiting, in order.
     for episode in sorted(episodes, key=lambda item: (item.published, item.episode_id)):

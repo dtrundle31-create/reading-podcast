@@ -1,9 +1,10 @@
 # Builds MP3 episodes and feed.xml from scripts/ and commits them to main.
 #
 # Loop protection, in order:
-# 1. This workflow runs on pushes to main only when files under scripts/ change,
-#    or when someone starts it with workflow_dispatch. The bot commit updates
-#    episodes/, feed.xml, and index.html, which do not match that path filter.
+# 1. This workflow runs on pushes to main only when files under scripts/ change
+#    or tools/build_podcast.py changes, or when someone starts it with
+#    workflow_dispatch. The bot commit updates episodes/, feed.xml, and
+#    index.html, which do not match that path filter.
 # 2. The push uses the repository GITHUB_TOKEN. Events caused by GITHUB_TOKEN
 #    do not start new workflow runs.
 # 3. The bot commit message contains [skip ci].
@@ -16,6 +17,7 @@ on:
       - main
     paths:
       - "scripts/**"
+      - "tools/build_podcast.py"
   workflow_dispatch:
 
 permissions:
