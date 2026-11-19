@@ -320,9 +320,46 @@ def check_cover() -> None:
         fail(f"cover.png must be a square PNG between 1400 and 3000 pixels (got {width}x{height})")
 
 
-async def synthesize_chunk(text: str, dest: Path, voice: str) -> None:
+# The speech service often closes a turn without audio. A short retry usually
+# recovers; if the same span keeps failing, speak it as two shorter parts.
+SPEECH_ATTEMPTS = 4
+MAX_SPLIT_DEPTH = 4
+
+
+def split_in_half(text: str) -> tuple[str, str] | None:
+    """Split narration near the middle, on a sentence boundary when there is one."""
+    text = " ".join(text.split())
+    if len(text) < 40:
+        return None
+    sentences = split_sentences(text)
+    if len(sentences) >= 2:
+        best_at = 1
+        best_delta = abs(len(" ".join(sentences[:1])) - len(" ".join(sentences[1:])))
+        for index in range(1, len(sentences)):
+            left = " ".join(sentences[:index])
+            right = " ".join(sentences[index:])
+            delta = abs(len(left) - len(right))
+            if delta < best_delta:
+                best_at = index
+                best_delta = delta
+        left = " ".join(sentences[:best_at]).strip()
+        right = " ".join(sentences[best_at:]).strip()
+        if left and right:
+            return left, right
+    words = text.split()
+    if len(words) < 2:
+        return None
+    midpoint = max(1, len(words) // 2)
+    left = " ".join(words[:midpoint]).strip()
+    right = " ".join(words[midpoint:]).strip()
+    if not left or not right:
+        return None
+    return left, right
+
+
+async def synthesize_chunk(text: str, dest: Path, voice: str, depth: int = 0) -> None:
     last_error: Exception | None = None
-    for attempt in range(1, 5):
+    for attempt in range(1, SPEECH_ATTEMPTS + 1):
         try:
             communicate = edge_tts.Communicate(
                 text,
@@ -337,7 +374,7 @@ async def synthesize_chunk(text: str, dest: Path, voice: str) -> None:
         except Exception as exc:
             last_error = exc
             dest.unlink(missing_ok=True)
-            if attempt == 4:
+            if attempt == SPEECH_ATTEMPTS:
                 break
             wait = 2 ** (attempt - 1)
             print(
@@ -345,7 +382,22 @@ async def synthesize_chunk(text: str, dest: Path, voice: str) -> None:
                 file=sys.stderr,
             )
             await asyncio.sleep(wait)
-    fail(f"text-to-speech failed for a chunk: {last_error}")
+    halves = split_in_half(text) if depth < MAX_SPLIT_DEPTH else None
+    if halves is None:
+        fail(f"text-to-speech failed for a chunk: {last_error}")
+    print(
+        f"  no audio after {SPEECH_ATTEMPTS} attempts; splitting into two shorter parts",
+        file=sys.stderr,
+    )
+    left_path = dest.with_name(f"{dest.stem}-a.mp3")
+    right_path = dest.with_name(f"{dest.stem}-b.mp3")
+    try:
+        await synthesize_chunk(halves[0], left_path, voice, depth + 1)
+        await synthesize_chunk(halves[1], right_path, voice, depth + 1)
+        concat_mp3([left_path, right_path], dest)
+    finally:
+        left_path.unlink(missing_ok=True)
+        right_path.unlink(missing_ok=True)
 
 
 def concat_mp3(parts: list[Path], dest: Path) -> None:
